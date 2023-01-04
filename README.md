@@ -23,6 +23,7 @@ Please follow the instructions in the contributions guide at [CONTRIBUTING.md](C
 
 ## Documentation
 - [vt100](https://vt100.net/docs/vt100-ug/contents.html)
+- [vt510](https://vt100.net/docs/vt510-rm/contents.html)
 
 ## Thanks
 - [writing-a-tui-in-bash](https://github.com/dylanaraps/writing-a-tui-in-bash)
