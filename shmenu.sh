@@ -4,8 +4,11 @@
 ### globals
 #########
 declare -a _OPTIONS
+_SEL=1
+_TOTAL=0
 _PROMPT=
 _RUNNING=1
+_CHOSEN=
 
 #########
 ### utils
@@ -34,7 +37,8 @@ dependency() {
 parse() {
     while [[ $# -gt 0 ]]; do
        case $1 in
-            -o|--options) shift
+            -o|--options)
+                shift
                 # append options as long as the current arg isnt
                 # either empty or a possible flag/switch to other
                 # features
@@ -43,9 +47,11 @@ parse() {
                     _OPTIONS+=(${1})
                     shift
                 done
+                _TOTAL="${#_OPTIONS[@]}"
                 ;;
 
-            -p|--prompt) shift
+            -p|--prompt)
+                shift
                 # either take the next argument as prompt, if it is
                 # somehow empty then take the default value of MENY
                 _PROMPT="${1:-MENU}"
@@ -58,6 +64,7 @@ parse() {
                 ;;
 
             *)
+                printf "ARG: ${1}\n"
                 usage
                 exit 1
                 ;;
@@ -84,6 +91,13 @@ setup() {
 
     # clear screen to use a clean slate
     clear_screen
+
+    # reset cursor to 2,2 so it fits into the [ ] boxes
+    # and stays after the prompt
+    set_cursor 2 2
+
+    # draw the TUI
+    draw
 }
 
 restore() {
@@ -106,11 +120,6 @@ clear_screen() {
     # ED - Erase in Display
     # Arg 2: complete display
     printf '\e[2J'
-
-    # https://vt100.net/docs/vt510-rm/CUP.html
-    # CUP - Cursor Position
-    # restores cursor to 0,0 or 1,1
-    printf '\e[H'
 }
 
 hide_cursor() {
@@ -125,6 +134,27 @@ show_cursor() {
     printf '\e[?25h'
 }
 
+push_cursor_pos() {
+    printf '\e7'
+}
+
+pop_cursor_pos() {
+    printf '\e8'
+}
+
+set_cursor() {
+    local row="$1"
+    local col="$2"
+
+    # https://vt100.net/docs/vt510-rm/CUP.html
+    # CUP - Cursor Position
+    if [[ -z "$row" || -z "$col" ]]; then
+        printf '\e[H'
+    else
+        printf "\e[${row};${col}H"
+    fi
+}
+
 cursor_up() {
     # https://vt100.net/docs/vt510-rm/CUU.html
     printf '\e[A'
@@ -135,12 +165,64 @@ cursor_down() {
     printf '\e[B'
 }
 
+cursor_left() {
+    # https://vt100.net/docs/vt510-rm/CUB.html
+    printf '\e[D'
+}
+
+cursor_right() {
+    # https://vt100.net/docs/vt510-rm/CUF.html
+    printf '\e[C'
+}
+
+underline_text() {
+    # https://github.com/dylanaraps/pure-bash-bible#text-colors
+    printf '\e[4m'
+}
+
+highlight_text() {
+    # https://github.com/dylanaraps/pure-bash-bible#text-colors
+    printf '\e[7m'
+}
+
+reset_text() {
+    # https://github.com/dylanaraps/pure-bash-bible#text-colors
+    printf '\e[m'
+}
+
 #########
 ### control flow
 #########
+draw() {
+    # PRE_DRAW
+    push_cursor_pos
+    set_cursor 1 1
+
+    # PROMPT
+    underline_text
+    printf "${_PROMPT}?\n\r"
+    reset_text
+
+    # OPTIONS
+    for o in "${_OPTIONS[@]}"; do
+        printf "[ ] ${o}\n\r"
+    done
+
+    # KEYBINDINGS
+    highlight_text
+    printf "j:up | k:down | l:selects | q: quits\n\r"
+    reset_text
+
+
+    # POST_DRAW
+    pop_cursor_pos
+}
+
 refresh() {
+    # was supposed to do much more, but we simplified
+    # the program, will however leave a refresh function
+    # even if unnecssary here for future modifications
     hide_cursor
-    clear_screen
     show_cursor
 }
 
@@ -153,17 +235,26 @@ read_input() {
     local key
     read -srn 1 key
     case ${key} in
-        j)
-            printf '\e[B'
-            # cursor_up
+        j) # down
+            if [[ ${_SEL} -lt ${_TOTAL} ]]; then
+                cursor_down
+                ((_SEL++))
+            fi
+           ;;
+
+        k) # up
+            if [[ ${_SEL} -gt 1 ]]; then
+                cursor_up
+                ((_SEL--))
+            fi
             ;;
 
-        k)
-            printf '\e[A'
-            # cursor_down
+        l) # selects
+            _RUNNING=0
+            _CHOSEN=${_OPTIONS[((_SEL - 1))]}
             ;;
 
-        q)
+        q) # quit
             _RUNNING=0
             ;;
 
@@ -174,13 +265,13 @@ read_input() {
 
 main() {
     parse "$@"
-    exit 0
     setup
     while [[ 1 ]]; do
-        # refresh
+        refresh
         read_input
 
-        # # if user chose to end application
+        # # if user chose to end application either quitting or
+        # selecting option
         if [[ ${_RUNNING} -eq 0 ]]; then
             restore
             break
@@ -196,3 +287,4 @@ main() {
 }
 
 main "$@"
+[ -n "${_CHOSEN}" ] && printf "${_CHOSEN}\n"
