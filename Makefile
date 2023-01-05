@@ -12,6 +12,9 @@ vhs-setup:
 vhs: vhs-setup
 	vhs < demo.tape
 
+view:
+	@[ -f ./.github/assets/demo.gif ] && (mpv ./.github/assets/demo.gif)
+
 run:
 	@./shmenu.sh -o this that theother -p menu
 
