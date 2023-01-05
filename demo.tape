@@ -44,7 +44,7 @@
 #   Hide                            Hide the subsequent commands from the output
 #   Show                            Show the subsequent commands in the output
 
-Output examples/demo.gif
+Output .github/assets/demo.gif
 
 Require echo
 
@@ -54,15 +54,23 @@ Set Height 600
 Set LoopOffset 50%
 
 Type "echo 'Welcome to shmenu!'"
-Sleep 500ms 
+Sleep 500ms
 Enter
 
 Type "shmenu -o this that theother -p 'a prompt ended by a question'"
-Sleep 500ms 
-j 
-j
-k
-Sleep 900ms 
+Sleep 500ms
+Enter
+
+Type "j"
+Sleep 300ms
+Enter
+
+Type "j"
+Sleep 300ms
+Enter
+
+Type "k"
+Sleep 900ms
 Enter
 
 Sleep 5s
