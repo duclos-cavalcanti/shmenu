@@ -58,19 +58,22 @@ Sleep 500ms
 Enter
 
 Type "shmenu -o this that theother -p 'a prompt ended by a question'"
-Sleep 500ms
+Sleep 2000ms
 Enter
 
 Type "j"
-Sleep 300ms
+Sleep 1200ms
 Enter
 
 Type "j"
-Sleep 300ms
+Sleep 1200ms
 Enter
 
 Type "k"
-Sleep 900ms
+Sleep 1200ms
+Enter
+
+Type "l"
 Enter
 
 Sleep 5s
