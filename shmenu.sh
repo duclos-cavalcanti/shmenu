@@ -189,6 +189,11 @@ highlight_text() {
     printf '\e[7m'
 }
 
+italic_text() {
+    # https://github.com/dylanaraps/pure-bash-bible#text-colors
+    printf '\e[3m'
+}
+
 reset_text() {
     # https://github.com/dylanaraps/pure-bash-bible#text-colors
     printf '\e[m'
@@ -197,6 +202,27 @@ reset_text() {
 #########
 ### control flow
 #########
+draw_last_key() {
+    local row=
+    local col=
+
+    # PRE_DRAW
+    push_cursor_pos
+
+    # 1 for the prompt, 1 for the help menu and ${TOTAL} for all options
+    row=$((1 + $_TOTAL + 1 + 1))
+    col=1
+    set_cursor $row $col
+
+    # DRAW
+    italic_text
+    printf "last key: $_LAST_KEY"
+    reset_text
+
+    # POST_DRAW
+    pop_cursor_pos
+}
+
 draw() {
     # PRE_DRAW
     push_cursor_pos
@@ -214,7 +240,7 @@ draw() {
 
     # KEYBINDINGS
     highlight_text
-    printf "j:up | k:down | l:selects | q: quits\n\r"
+    printf "j:up | k:down | l/enter:selects | q/h: quits\n\r"
     reset_text
 
 
@@ -227,6 +253,7 @@ refresh() {
     # the program, will however leave a refresh function
     # even if unnecssary here for future modifications
     hide_cursor
+    draw_last_key
     show_cursor
 }
 
@@ -253,12 +280,12 @@ read_input() {
             fi
             ;;
 
-        l) # selects
+        l|"") # selects
             _RUNNING=0
             _CHOSEN=${_OPTIONS[((_CUR - 1))]}
             ;;
 
-        q) # quit
+        h|q) # quit
             _RUNNING=0
             ;;
 
@@ -292,4 +319,4 @@ main() {
 }
 
 main "$@"
-[ -n "${_CHOSEN}" ] && printf "${_CHOSEN}\n"
+[ -n "${_CHOSEN}" ] && printf "${_CHOSEN}\n" || exit 0
