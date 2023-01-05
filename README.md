@@ -11,7 +11,7 @@
 ```
 
 ## Usage
-![video](.github/assets/demo.gif)
+![video](.github/assets/demo.gif?)
 
 ## License
 This project is released under the GNU General Public License 3.0. See [LICENSE](LICENSE).
