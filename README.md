@@ -25,6 +25,7 @@ Please follow the instructions in the contributions guide at [CONTRIBUTING.md](C
 - [vt100](https://vt100.net/docs/vt100-ug/contents.html)
 - [vt510](https://vt100.net/docs/vt510-rm/contents.html)
 - [xterm](https://www.xfree86.org/current/ctlseqs.html)
+- [northwestern-vt100](https://www2.ccs.neu.edu/research/gpc/VonaUtils/vona/terminal/vtansi.htm)
 
 ## Thanks
 - [writing-a-tui-in-bash](https://github.com/dylanaraps/writing-a-tui-in-bash)
