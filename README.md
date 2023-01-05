@@ -27,10 +27,9 @@ Please follow the instructions in the contributions guide at [CONTRIBUTING.md](C
 - [xterm](https://www.xfree86.org/current/ctlseqs.html)
 
 ## Thanks
-[dylanraps](https://github.com/dylanaraps) and his work specifically on bash-related projects:
-    - [writing-a-tui-in-bash](https://github.com/dylanaraps/writing-a-tui-in-bash)
-    - [pure-bash-bible](https://github.com/dylanaraps/pure-bash-bible)
-    - [fff](https://github.com/dylanaraps/fff)
+- [writing-a-tui-in-bash](https://github.com/dylanaraps/writing-a-tui-in-bash)
+- [pure-bash-bible](https://github.com/dylanaraps/pure-bash-bible)
+- [fff](https://github.com/dylanaraps/fff)
 
 ## Donations
 I have a ko-fi and a buy-me-a-coffee account, so if you found this repo useful and would like to show your appreciation, feel free to do so!
