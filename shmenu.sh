@@ -3,6 +3,8 @@
 #########
 ### globals
 #########
+declare -a _OPTIONS
+_PROMPT=
 _RUNNING=1
 
 #########
@@ -15,6 +17,9 @@ usage() {
     USAGE: shmenu.sh [ARGS]
 
     ARGS:
+    -o | --options: list of elements to consider as options for the menu
+    -p | --prompt:  the menu's prompt/title
+    -h | --help:    print this text
     "
 }
 
@@ -27,7 +32,37 @@ dependency() {
 }
 
 parse() {
-    :
+    while [[ $# -gt 0 ]]; do
+       case $1 in
+            -o|--options) shift
+                # append options as long as the current arg isnt
+                # either empty or a possible flag/switch to other
+                # features
+                while [[ -n ${1} ]]; do
+                    [[ ${1:0:1} == "-"  ]] && break
+                    _OPTIONS+=(${1})
+                    shift
+                done
+                ;;
+
+            -p|--prompt) shift
+                # either take the next argument as prompt, if it is
+                # somehow empty then take the default value of MENY
+                _PROMPT="${1:-MENU}"
+                shift
+                ;;
+
+            -h|--help)
+                usage
+                exit 0
+                ;;
+
+            *)
+                usage
+                exit 1
+                ;;
+       esac
+    done
 }
 
 #########
@@ -138,6 +173,8 @@ read_input() {
 }
 
 main() {
+    parse "$@"
+    exit 0
     setup
     while [[ 1 ]]; do
         # refresh
