@@ -3,17 +3,15 @@
   simple bash-based menu tui
 </p>
 
-WIP!
-
 ## Installation
 ```sh
-# TODO
+  git clone git@github.com:duclos-cavalcanti/shmenu.git
+  sudo make install
+  # sudo make uninstall to uninstall later
 ```
 
 ## Usage
-```
-# TODO
-```
+![video](.github/assets/demo.gif)
 
 ## License
 This project is released under the GNU General Public License 3.0. See [LICENSE](LICENSE).
