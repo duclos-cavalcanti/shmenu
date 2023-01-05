@@ -62,16 +62,16 @@ Sleep 2000ms
 Enter
 
 Type "j"
-Sleep 2000ms
 Enter
+Sleep 2000ms
 
 Type "j"
-Sleep 2000ms
 Enter
+Sleep 2000ms
 
 Type "k"
-Sleep 3000ms
 Enter
+Sleep 3000ms
 
 Type "l"
 Enter
