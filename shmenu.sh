@@ -26,6 +26,10 @@ dependency() {
     fi
 }
 
+parse() {
+    :
+}
+
 #########
 ### TUI
 #########
@@ -42,6 +46,9 @@ setup() {
     # stty changes and prints terminal line settings
     # -echo, removes the echoing/visual typing of user input
     stty -echo
+
+    # clear screen to use a clean slate
+    clear_screen
 }
 
 restore() {
@@ -83,6 +90,16 @@ show_cursor() {
     printf '\e[?25h'
 }
 
+cursor_up() {
+    # https://vt100.net/docs/vt510-rm/CUU.html
+    printf '\e[A'
+}
+
+cursor_down() {
+    # https://vt100.net/docs/vt510-rm/CUD.html
+    printf '\e[B'
+}
+
 #########
 ### control flow
 #########
@@ -92,17 +109,53 @@ refresh() {
     show_cursor
 }
 
-parse() {
+read_input() {
+    # The read utility shall read a single logical line from standard input
+    # into one or more shell variables.
+    # '-r':, do not allow backslashes to escape any characters
+    # '-n NCHARS': return after reading NCHARS
+    # '-s': do not echo input from incoming terminal
+    local key
+    read -srn 1 key
+    case ${key} in
+        j)
+            printf '\e[B'
+            # cursor_up
+            ;;
 
+        k)
+            printf '\e[A'
+            # cursor_down
+            ;;
+
+        q)
+            _RUNNING=0
+            ;;
+
+        *)
+            ;;
+    esac
 }
 
 main() {
     setup
-    while [[ ${_RUNNING} ]]; do
-        refresh
+    while [[ 1 ]]; do
+        # refresh
+        read_input
 
+        # # if user chose to end application
+        if [[ ${_RUNNING} -eq 0 ]]; then
+            restore
+            break
+        fi
+
+        # thanks, taken from: https://github.com/dylanaraps/fff
+        # Exit if there is no longer a terminal attached.
+        if [[ ! -t 1 ]]; then
+            restore
+            exit 1
+        fi
     done
-    restore
 }
 
 main "$@"
