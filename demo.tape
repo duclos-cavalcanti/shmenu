@@ -53,7 +53,7 @@ Set Width 1200
 Set Height 600
 Set LoopOffset 50%
 
-Type "echo 'Welcome to shmenu!'"
+Type "# Welcome to shmenu!"
 Sleep 500ms
 Enter
 
@@ -62,15 +62,15 @@ Sleep 2000ms
 Enter
 
 Type "j"
-Sleep 1200ms
+Sleep 2000ms
 Enter
 
 Type "j"
-Sleep 1200ms
+Sleep 2000ms
 Enter
 
 Type "k"
-Sleep 1200ms
+Sleep 3000ms
 Enter
 
 Type "l"
