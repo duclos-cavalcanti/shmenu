@@ -3,12 +3,16 @@
 #########
 ### globals
 #########
-declare -a _OPTIONS
-_SEL=1
-_TOTAL=0
-_PROMPT=
 _RUNNING=1
+
+declare -a _OPTIONS
+_CUR=1
+_TOTAL=0
 _CHOSEN=
+
+_PROMPT=
+
+_LAST_KEY=
 
 #########
 ### utils
@@ -236,22 +240,22 @@ read_input() {
     read -srn 1 key
     case ${key} in
         j) # down
-            if [[ ${_SEL} -lt ${_TOTAL} ]]; then
+            if [[ ${_CUR} -lt ${_TOTAL} ]]; then
                 cursor_down
-                ((_SEL++))
+                ((_CUR++))
             fi
            ;;
 
         k) # up
-            if [[ ${_SEL} -gt 1 ]]; then
+            if [[ ${_CUR} -gt 1 ]]; then
                 cursor_up
-                ((_SEL--))
+                ((_CUR--))
             fi
             ;;
 
         l) # selects
             _RUNNING=0
-            _CHOSEN=${_OPTIONS[((_SEL - 1))]}
+            _CHOSEN=${_OPTIONS[((_CUR - 1))]}
             ;;
 
         q) # quit
@@ -261,6 +265,7 @@ read_input() {
         *)
             ;;
     esac
+    _LAST_KEY="${key}"
 }
 
 main() {
