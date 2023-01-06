@@ -7,8 +7,9 @@
 ```sh
   git clone git@github.com:duclos-cavalcanti/shmenu.git
   sudo make install
-  # sudo make uninstall to uninstall later
 ```
+
+For de-installation, simply go back into the cloned folder and run `sudo make uninstall`.
 
 ## Usage
 ![video](.github/assets/demo.gif?)
