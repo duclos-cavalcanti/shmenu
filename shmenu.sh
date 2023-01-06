@@ -4,6 +4,7 @@
 ### globals
 #########
 _RUNNING=1
+_DEBUG=0
 
 declare -a _OPTIONS
 _CUR=1
@@ -59,6 +60,11 @@ parse() {
                 # either take the next argument as prompt, if it is
                 # somehow empty then take the default value of MENY
                 _PROMPT="${1:-MENU}"
+                shift
+                ;;
+
+            -d|--debug)
+                _DEBUG=1
                 shift
                 ;;
 
@@ -124,6 +130,13 @@ clear_screen() {
     # ED - Erase in Display
     # Arg 2: complete display
     printf '\e[2J'
+}
+
+screen_size() {
+    # https://github.com/dylanaraps/writing-a-tui-in-bash#getting-the-window-size
+    # Get terminal size ('stty' is POSIX and always available).
+    # This can't be done reliably across all bash versions in pure bash.
+    read -r LINES COLUMNS < <(stty size)
 }
 
 hide_cursor() {
@@ -202,7 +215,7 @@ reset_text() {
 #########
 ### control flow
 #########
-draw_last_key() {
+draw_debug() {
     local row=
     local col=
 
@@ -216,7 +229,7 @@ draw_last_key() {
 
     # DRAW
     italic_text
-    printf "last key: $_LAST_KEY"
+    printf "last key: $_LAST_KEY | LINES: ${LINES} | COLS: ${COLUMNS}"
     reset_text
 
     # POST_DRAW
@@ -253,7 +266,7 @@ refresh() {
     # the program, will however leave a refresh function
     # even if unnecssary here for future modifications
     hide_cursor
-    draw_last_key
+    [[ $_DEBUG -eq 1 ]] && draw_debug
     show_cursor
 }
 
@@ -295,9 +308,25 @@ read_input() {
     _LAST_KEY="${key}"
 }
 
+callbacks() {
+    # trap allows us to capture and react to specific signals sent
+    # to the running program.
+    #
+    # https://github.com/dylanaraps/writing-a-tui-in-bash#using-stty
+    # In this case we're trapping the SIGWINCH signal which is
+    # sent to the terminal and the running shell on window resize.
+    # Callbacks the screen_size function when SIGWINCH is
+    # received, thus updating the lines and columns variables
+    trap 'screen_size' WINCH
+
+    # TODO: debug this, not working properly
+}
+
+
 main() {
     parse "$@"
     setup
+    callbacks
     while [[ 1 ]]; do
         refresh
         read_input
