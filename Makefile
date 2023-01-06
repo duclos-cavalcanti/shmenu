@@ -16,7 +16,7 @@ view:
 	@[ -f ./.github/assets/demo.gif ] && (mpv ./.github/assets/demo.gif)
 
 run:
-	@./shmenu.sh -o this that theother -p menu
+	@./shmenu.sh -o this that theother -p menu -d
 
 install:
 	@sudo cp ./shmenu.sh /usr/bin/shmenu
