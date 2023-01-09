@@ -62,11 +62,11 @@ parse() {
                 ;;
 
             -p|--prompt)
-		[[ ${#_OPTIONS[@]} -eq 0 ]] && print_and_quit
+        [[ ${#_OPTIONS[@]} -eq 0 ]] && print_and_quit
                 shift
                 # either take the next argument as prompt, if it is
                 # somehow empty then take the default value of MENU
-                if [ -n "${1}" ]; then 
+                if [ -n "${1}" ]; then
                    _PROMPT="${1}"
                    startpos=2
                 else
