@@ -1,6 +1,12 @@
 # How to Contribute
 
-This project is not currently accepting contributions.
+1. Fork the project.
+1. Clone your fork (`git clone https://github.com/your_username/shmenu && cd shmenu`)
+1. Create your feature branch (`git checkout -b my-new-feature`)
+1. Make changes
+1. Commit changes
+1. Push to the branch (`git push origin my-new-feature`)
+1. Create new pull request
 
 ## Contributor License Agreement
 
