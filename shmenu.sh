@@ -38,11 +38,16 @@ dependency() {
         exit 1
     fi
 }
-
+print_and_quit() {
+    usage
+    exit 1
+}
 parse() {
-    while [[ $# -gt 0 ]]; do
+   [[ $# -eq 0 ]] && print_and_quit
+   while [[ $# -gt 0 ]]; do
        case $1 in
             -o|--options)
+                [[ ${2:0:1} == "-"  ]] || [[ -z ${2} ]] && print_and_quit
                 shift
                 # append options as long as the current arg isnt
                 # either empty or a possible flag/switch to other
@@ -51,15 +56,22 @@ parse() {
                     [[ ${1:0:1} == "-"  ]] && break
                     _OPTIONS+=(${1})
                     shift
-                done
+    done
                 _TOTAL="${#_OPTIONS[@]}"
+                startpos=1
                 ;;
 
             -p|--prompt)
+        [[ ${#_OPTIONS[@]} -eq 0 ]] && print_and_quit
                 shift
                 # either take the next argument as prompt, if it is
-                # somehow empty then take the default value of MENY
-                _PROMPT="${1:-MENU}"
+                # somehow empty then take the default value of MENU
+                if [ -n "${1}" ]; then
+                   _PROMPT="${1}"
+                   startpos=2
+                else
+                   startpos=1
+                fi
                 shift
                 ;;
 
@@ -72,9 +84,8 @@ parse() {
                 usage
                 exit 0
                 ;;
-
             *)
-                printf "ARG: ${1}\n"
+                printf "\n    ARG: %s\n" ${1}
                 usage
                 exit 1
                 ;;
@@ -104,7 +115,7 @@ setup() {
 
     # reset cursor to 2,2 so it fits into the [ ] boxes
     # and stays after the prompt
-    set_cursor 2 2
+    set_cursor $startpos 2
 
     # draw the TUI
     draw
@@ -137,6 +148,9 @@ screen_size() {
     # Get terminal size ('stty' is POSIX and always available).
     # This can't be done reliably across all bash versions in pure bash.
     read -r LINES COLUMNS < <(stty size)
+    clear
+    draw
+    refresh
 }
 
 hide_cursor() {
@@ -168,7 +182,7 @@ set_cursor() {
     if [[ -z "$row" || -z "$col" ]]; then
         printf '\e[H'
     else
-        printf "\e[${row};${col}H"
+        printf "\e[%i;%iH" ${row} ${col}
     fi
 }
 
@@ -243,22 +257,24 @@ draw() {
 
     # PROMPT
     underline_text
-    printf "${_PROMPT}?\n\r"
+    if [ -n "${_PROMPT}" ]; then
+        printf "%s\n\r" "${_PROMPT}"
+    fi
     reset_text
 
     # OPTIONS
     for o in "${_OPTIONS[@]}"; do
-        printf "[ ] ${o}\n\r"
+        printf "[ ] %s\n\r" ${o}
     done
 
     # KEYBINDINGS
     highlight_text
-    printf "j:up | k:down | l/enter:selects | q/h: quits\n\r"
+    printf "j: up | k: down | l: selects | q/h: quits\n\r"
     reset_text
 
 
     # POST_DRAW
-    pop_cursor_pos
+    set_cursor $startpos 2
 }
 
 refresh() {
@@ -276,36 +292,43 @@ read_input() {
     # '-r':, do not allow backslashes to escape any characters
     # '-n NCHARS': return after reading NCHARS
     # '-s': do not echo input from incoming terminal
-    local key
-    read -srn 1 key
-    case ${key} in
-        j) # down
+    while true; do
+        read input
+            case ${input} in
+            j) # down
             if [[ ${_CUR} -lt ${_TOTAL} ]]; then
-                cursor_down
-                ((_CUR++))
+            cursor_down
+            ((_CUR++))
             fi
            ;;
 
         k) # up
             if [[ ${_CUR} -gt 1 ]]; then
-                cursor_up
-                ((_CUR--))
+            cursor_up
+            ((_CUR--))
             fi
             ;;
 
-        l|"") # selects
+        l) # selects
             _RUNNING=0
             _CHOSEN=${_OPTIONS[((_CUR - 1))]}
+                return
             ;;
 
         h|q) # quit
             _RUNNING=0
+            exit
             ;;
 
         *)
             ;;
-    esac
-    _LAST_KEY="${key}"
+        esac
+        _LAST_KEY="${input}"
+    done
+}
+quit(){
+    restore
+    exit
 }
 
 callbacks() {
@@ -317,9 +340,10 @@ callbacks() {
     # sent to the terminal and the running shell on window resize.
     # Callbacks the screen_size function when SIGWINCH is
     # received, thus updating the lines and columns variables
-    trap 'screen_size' WINCH
 
     # TODO: debug this, not working properly
+    trap 'screen_size' SIGWINCH WINCH
+    trap 'quit' SIGINT EXIT
 }
 
 
@@ -347,5 +371,6 @@ main() {
     done
 }
 
+stty -icanon time 0 min 0
 main "$@"
-[ -n "${_CHOSEN}" ] && printf "${_CHOSEN}\n" || exit 0
+[ -n "${_CHOSEN}" ] && printf "%s\n" "${_CHOSEN}" || exit 0
