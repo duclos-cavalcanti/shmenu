@@ -72,6 +72,7 @@ parse() {
            esac
         done
     else
+        printf "NO ARGUMENTS PROVIDED!\n"
         usage
         exit 1
     fi
