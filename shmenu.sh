@@ -30,14 +30,6 @@ usage() {
     "
 }
 
-dependency() {
-    local program="$1"
-    if ! command -v ${program} &>/dev/null; then
-        echo "program is not installed"
-        exit 1
-    fi
-}
-
 parse() {
     if [[ $# -ne 0 ]]; then
         while [[ $# -gt 0 ]]; do
