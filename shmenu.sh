@@ -3,7 +3,6 @@
 #########
 ### globals
 #########
-_RUNNING=1
 _DEBUG=0
 
 declare -a _OPTIONS
@@ -11,9 +10,9 @@ _CUR=1
 _TOTAL=0
 _CHOSEN=
 
-_PROMPT=
+_PROMPT="MENU"
 
-_LAST_KEY=
+_INPUT=
 
 #########
 ### utils
@@ -40,46 +39,50 @@ dependency() {
 }
 
 parse() {
-    while [[ $# -gt 0 ]]; do
-       case $1 in
-            -o|--options)
-                shift
-                # append options as long as the current arg isnt
-                # either empty or a possible flag/switch to other
-                # features
-                while [[ -n ${1} ]]; do
-                    [[ ${1:0:1} == "-"  ]] && break
-                    _OPTIONS+=(${1})
+    if [[ $# -ne 0 ]]; then
+        while [[ $# -gt 0 ]]; do
+           case $1 in
+                -o|--options)
                     shift
-                done
-                _TOTAL="${#_OPTIONS[@]}"
-                ;;
+                    # append options as long as the current arg isnt
+                    # either empty or a possible flag/switch to other
+                    # features
+                    while [[ -n ${1} ]]; do
+                        [[ ${1:0:1} == "-"  ]] && break
+                        _OPTIONS+=(${1})
+                        shift
+                    done
+                    _TOTAL="${#_OPTIONS[@]}"
+                    ;;
 
-            -p|--prompt)
-                shift
-                # either take the next argument as prompt, if it is
-                # somehow empty then take the default value of MENY
-                _PROMPT="${1:-MENU}"
-                shift
-                ;;
+                -p|--prompt)
+                    shift
+                    # either take the next argument as prompt, if it is
+                    # somehow empty then take the default value of MENU
+                    _PROMPT="${1:-${_PROMPT}}"
+                    shift
+                    ;;
 
-            -d|--debug)
-                _DEBUG=1
-                shift
-                ;;
+                -d|--debug)
+                    _DEBUG=1
+                    shift
+                    ;;
 
-            -h|--help)
-                usage
-                exit 0
-                ;;
+                -h|--help)
+                    usage
+                    exit 0
+                    ;;
 
-            *)
-                printf "ARG: ${1}\n"
-                usage
-                exit 1
-                ;;
-       esac
-    done
+                *)
+                    usage
+                    exit 1
+                    ;;
+           esac
+        done
+    else
+        usage
+        exit 1
+    fi
 }
 
 #########
@@ -99,6 +102,16 @@ setup() {
     # -echo, removes the echoing/visual typing of user input
     stty -echo
 
+    # trap allows us to capture and react to specific signals sent
+    # to the running program.
+    #
+    # https://github.com/dylanaraps/writing-a-tui-in-bash#using-stty
+    # In this case we're trapping the SIGWINCH signal which is
+    # sent to the terminal and the running shell on window resize.
+    # Callbacks the screen_size function when SIGWINCH is
+    # received, thus updating the lines and columns variables
+    trap 'screen_size' WINCH
+
     # clear screen to use a clean slate
     clear_screen
 
@@ -108,6 +121,7 @@ setup() {
 
     # draw the TUI
     draw
+
 }
 
 restore() {
@@ -229,7 +243,7 @@ draw_debug() {
 
     # DRAW
     italic_text
-    printf "last key: $_LAST_KEY | LINES: ${LINES} | COLS: ${COLUMNS}"
+    printf "last key: $_INPUT | LINES: ${LINES} | COLS: ${COLUMNS}"
     reset_text
 
     # POST_DRAW
@@ -270,73 +284,47 @@ refresh() {
     show_cursor
 }
 
-read_input() {
-    # The read utility shall read a single logical line from standard input
-    # into one or more shell variables.
-    # '-r':, do not allow backslashes to escape any characters
-    # '-n NCHARS': return after reading NCHARS
-    # '-s': do not echo input from incoming terminal
-    local key
-    read -srn 1 key
-    case ${key} in
-        j) # down
-            if [[ ${_CUR} -lt ${_TOTAL} ]]; then
-                cursor_down
-                ((_CUR++))
-            fi
-           ;;
-
-        k) # up
-            if [[ ${_CUR} -gt 1 ]]; then
-                cursor_up
-                ((_CUR--))
-            fi
-            ;;
-
-        l|"") # selects
-            _RUNNING=0
-            _CHOSEN=${_OPTIONS[((_CUR - 1))]}
-            ;;
-
-        h|q) # quit
-            _RUNNING=0
-            ;;
-
-        *)
-            ;;
-    esac
-    _LAST_KEY="${key}"
-}
-
-callbacks() {
-    # trap allows us to capture and react to specific signals sent
-    # to the running program.
-    #
-    # https://github.com/dylanaraps/writing-a-tui-in-bash#using-stty
-    # In this case we're trapping the SIGWINCH signal which is
-    # sent to the terminal and the running shell on window resize.
-    # Callbacks the screen_size function when SIGWINCH is
-    # received, thus updating the lines and columns variables
-    trap 'screen_size' WINCH
-
-    # TODO: debug this, not working properly
-}
-
-
 main() {
     parse "$@"
     setup
-    callbacks
-    while [[ 1 ]]; do
+    while [[ true ]]; do
         refresh
-        read_input
+        # The read utility shall read a single logical line from standard input
+        # into one or more shell variables.
+        # '-r':, do not allow backslashes to escape any characters
+        # '-n NCHARS': return after reading NCHARS
+        # '-s': do not echo input from incoming terminal
+        local key
+        read -srn 1 _INPUT
+        case ${_INPUT} in
+            j) # down
+                if [[ ${_CUR} -lt ${_TOTAL} ]]; then
+                    cursor_down
+                    ((_CUR++))
+                fi
+               ;;
 
-        # # if user chose to end application either quitting or
-        # selecting option
-        if [[ ${_RUNNING} -eq 0 ]]; then
-            restore
-            break
-        fi
+            k) # up
+                if [[ ${_CUR} -gt 1 ]]; then
+                    cursor_up
+                    ((_CUR--))
+                fi
+                ;;
+
+            l|"") # user chose/selected option
+                _CHOSEN=${_OPTIONS[((_CUR - 1))]}
+                restore
+                break
+                ;;
+
+            h|q) # quit
+                restore
+                break
+                ;;
+
+            *)
+                ;;
+        esac
 
         # thanks, taken from: https://github.com/dylanaraps/fff
         # Exit if there is no longer a terminal attached.
