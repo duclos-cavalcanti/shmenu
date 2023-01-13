@@ -18,16 +18,7 @@ _INPUT=
 ### utils
 #########
 usage() {
-  echo "
-    NAME: shmenu - bash-based menu tui
-
-    USAGE: shmenu.sh [ARGS]
-
-    ARGS:
-    -o | --options: list of elements to consider as options for the menu
-    -p | --prompt:  the menu's prompt/title
-    -h | --help:    print this text
-    "
+    man shmenu
 }
 
 parse() {
@@ -66,14 +57,13 @@ parse() {
                     ;;
 
                 *)
-                    usage
+                    printf "UNKNOWN ARGUMENT: %s\n" "${${1}}"
                     exit 1
                     ;;
            esac
         done
     else
         printf "NO ARGUMENTS PROVIDED!\n"
-        usage
         exit 1
     fi
 }
