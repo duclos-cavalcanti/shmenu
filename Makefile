@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-FILE := $(lastword $(MAKEFILE_LIST))
+MANDIR ?= /usr/share/man
 
 PWD := $(shell pwd)
 FILES := $(shell find ${PWD} -name '*.sh')
@@ -15,12 +15,18 @@ vhs: vhs-setup
 view:
 	@[ -f ./.github/assets/demo.gif ] && (mpv ./.github/assets/demo.gif)
 
-run:
-	@./shmenu.sh -o this that theother -p menu -d
+install-shmenu:
+	@cp shmenu.sh /usr/bin/shmenu
 
-install:
-	@sudo cp ./shmenu.sh /usr/bin/shmenu
+install-man:
+	@cp shmenu.1 $(MANDIR)/man1
+
+install: install-shmenu install-man
 
 uninstall:
-	@[ -f /usr/bin/shmenu ] && sudo rm -i /usr/bin/shmenu
+	@rm -f /usr/bin/shmenu
+	@rm -f $(MANDIR)/man1/shmenu.1
+
+run:
+	@./shmenu.sh -o this that theother -p menu -d
 
