@@ -35,7 +35,6 @@ parse() {
                         _OPTIONS+=(${1})
                         shift
                     done
-                    _TOTAL="${#_OPTIONS[@]}"
                     ;;
 
                 -p|--prompt)
@@ -66,6 +65,8 @@ parse() {
         printf "NO ARGUMENTS PROVIDED!\n"
         exit 1
     fi
+    _TOTAL="${#_OPTIONS[@]}"
+    [[ $_TOTAL -eq 0 ]] && echo "No options given!" && exit 1
 }
 
 #########
@@ -120,6 +121,8 @@ restore() {
     # stty changes and prints terminal line settings
     # -echo, enables the echoing/visual typing of user input
     stty echo
+
+    show_cursor
 }
 
 clear_screen() {
@@ -240,7 +243,7 @@ draw() {
 
     # PROMPT
     underline_text
-    printf "${_PROMPT}?\n\r"
+    printf "${_PROMPT}\n\r"
     reset_text
 
     # OPTIONS
