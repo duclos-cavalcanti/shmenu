@@ -15,9 +15,10 @@ For de-installation, simply go back into the cloned folder and run `sudo make un
 ![video](.github/assets/demo.gif?)
 
 ## TODO
-[ ] read from stdin if used in piped commands
-[ ] ready raw input through stty, instead of blocking read
-[ ] properly trap SIGWINCH, SIGINT and EXIT
+
+- [ ] read from stdin if used in piped commands
+- [ ] ready raw input through stty, instead of blocking read
+- [ ] properly trap SIGWINCH, SIGINT and EXIT
 
 ## License
 This project is released under the GNU General Public License 3.0. See [LICENSE](LICENSE).
