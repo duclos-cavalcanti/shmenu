@@ -16,7 +16,8 @@ For de-installation, simply go back into the cloned folder and run `sudo make un
 
 ## TODO
 
-- [ ] read from stdin if used in piped commands
+- [ ] learn more and properly about stty
+- [ ] read from stdin if used in piped commands, how not break stty error throw?
 - [ ] ready raw input through stty, instead of blocking read
 - [ ] properly trap SIGWINCH, SIGINT and EXIT
 
