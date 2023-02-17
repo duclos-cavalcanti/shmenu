@@ -1,0 +1,30 @@
+session_name: shmenu
+windows:
+- layout: d592,114x30,0,0,23
+  options: {}
+  panes:
+  - focus: 'true'
+    shell_command: nvim README.md
+  start_directory: /home/duclos/Documents/projects/langs/bash/shmenu
+  window_name: md
+- layout: d593,114x30,0,0,24
+  options: {}
+  panes:
+  - focus: 'true'
+    shell_command: nvim shmenu.sh
+  start_directory: /home/duclos/Documents/projects/langs/bash/shmenu
+  window_name: src
+- focus: 'true'
+  layout: d594,114x30,0,0,25
+  options: {}
+  panes:
+  - pane
+  start_directory: /home/duclos/Documents/projects/langs/bash/shmenu
+  window_name: bash
+- layout: d595,114x30,0,0,26
+  options: {}
+  panes:
+  - focus: 'true'
+    shell_command: nvim Makefile
+  start_directory: /home/duclos/Documents/projects/langs/bash/shmenu
+  window_name: make
